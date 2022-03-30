@@ -33,13 +33,14 @@ namespace ProcesarItemGastoPIPSG
                 claveSmtp = string.IsNullOrEmpty(args[5]) ? "" : args[5];
                 deSmtp = string.IsNullOrEmpty(args[6]) ? "" : args[6];
                 paraSmtp = string.IsNullOrEmpty(args[7]) ? "" : args[7];
+
+                Console.WriteLine("Parametros enviados desde la consola");
+                Console.WriteLine(args == null ? "No hay parametros" : string.Join('-', args));
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                Console.WriteLine($"Algunos parametros no han sido transferidos a la consola, se utilizaran los valores por defecto");
+                Console.WriteLine($"Algunos parametros no han sido transferidos a la consola, se utilizaran los valores por defecto. Detalle del error => {exception.Message}");
             }
-
-
 
             IConfigurationBuilder builder = new ConfigurationBuilder()
                .AddJsonFile("appsettings.json")
