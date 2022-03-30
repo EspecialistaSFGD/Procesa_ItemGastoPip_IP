@@ -92,7 +92,7 @@ namespace ProcesarItemGastoPIPSG
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Ocurrió un problema al intentar deserializar la respuesta del servicio.\nError Asociado: {exception.Message}");
+                Console.WriteLine($"Ocurrio un problema al intentar recuperar la informacion del servicio.\nError Asociado: {exception.Message}");
                 itemsRespuesta =  new List<Item>();
             }
             return itemsRespuesta;

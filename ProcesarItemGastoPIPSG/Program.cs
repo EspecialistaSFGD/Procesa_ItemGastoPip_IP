@@ -103,7 +103,7 @@ namespace ProcesarItemGastoPIPSG
 
                     if (!hanSidoEliminados)
                     {
-                        listaErrados.Add($"<tr><td>{invocacion.SecEjec}</td><td>No se han podido eliminar los items cargados de la unidad ejecutora</td></tr>");
+                        listaErrados.Add($"<tr><td>{invocacion.SecEjec}</td><td>No se han podido eliminar la informacion previa de los items para la unidad ejecutora</td></tr>");
                         continue;
                     }
 
@@ -117,8 +117,8 @@ namespace ProcesarItemGastoPIPSG
                         continue;
                     }
                     Console.WriteLine($"Items registrados correctamente para la unidad ejecutora {invocacion.SecEjec} del anio {invocacion.Anio}");
-                    var haSidoActualizado = repositorio.ActualizarEjecutora(invocacion);
-                    if (!hanSidoRegistrados)
+                    var haSidoActualizado = await repositorio.ActualizarEjecutora(invocacion);
+                    if (!haSidoActualizado)
                     {
                         listaErrados.Add($"<tr><td>{invocacion.SecEjec}</td><td>No se ha podido actualizar el estado de la unidad ejecutora, se debe volver a procesar</td></tr>");
                         continue;
