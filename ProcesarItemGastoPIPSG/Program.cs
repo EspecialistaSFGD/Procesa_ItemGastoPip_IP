@@ -70,17 +70,14 @@ namespace ProcesarItemGastoPIPSG
 
         static async Task EjecutarProceso(string conexion, int numeroReintentosMaximo, Mail mail)
         {
+            var repositorio = new Repositorio(conexion);
+            var mensajeRespuesta = @"<h3>Proceso de carga de Items de Gasto</h3><p>mensaje_respuesta</p>";
             try
             {
                 Console.WriteLine($"--------------------------------------------------------------------");
                 Console.WriteLine($"    Proceso de carga de Items de Gasto para el anio configurado");
                 Console.WriteLine($"--------------------------------------------------------------------");
-                var mensajeRespuesta = @"<h3>Proceso de carga de Items de Gasto</h3><p>mensaje_respuesta</p>";
-                var proxyManager = ProxyManager.GetNewProxyManager();
                 var typeConvertionsManager = TypeConvertionManager.GetNewTypeConvertionManager();
-                var fileManager = FileManager.GetNewFileManager();
-                var request = new ProxyManager.Request();
-                var repositorio = new Repositorio(conexion);
 
                 var listaWebService = await repositorio.ObtenerListadoInvocaciones();
                 var listaErrados = new List<string>();
@@ -144,6 +141,11 @@ namespace ProcesarItemGastoPIPSG
             }
             catch (Exception exception)
             {
+
+                var detalle = $"<p>Ocurrió un problema durante el proceso de carga de items de gasto de proyectos. Detalle del error : {exception.Message}</p>";
+                mensajeRespuesta = mensajeRespuesta.Replace("mensaje_respuesta", detalle);
+                repositorio.SendMail(mail, "Proceso de Carga Masiva de Datos de Proyectos", mensajeRespuesta);
+
                 Console.WriteLine(exception.Message);
 
                 throw;
