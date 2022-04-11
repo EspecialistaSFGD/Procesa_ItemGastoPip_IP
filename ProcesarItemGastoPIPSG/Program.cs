@@ -142,7 +142,7 @@ namespace ProcesarItemGastoPIPSG
             catch (Exception exception)
             {
 
-                var detalle = $"<p>Ocurrió un problema durante el proceso de carga de items de gasto de proyectos. Detalle del error : {exception.Message}</p>";
+                var detalle = $"Ocurrió un problema durante el proceso de carga de items de gasto de proyectos. Detalle del error : {exception.Message}";
                 mensajeRespuesta = mensajeRespuesta.Replace("mensaje_respuesta", detalle);
                 repositorio.SendMail(mail, "Proceso de Carga Masiva de Datos de Proyectos", mensajeRespuesta);
 
