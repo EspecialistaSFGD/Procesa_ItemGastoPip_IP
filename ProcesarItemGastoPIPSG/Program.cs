@@ -71,7 +71,7 @@ namespace ProcesarItemGastoPIPSG
         static async Task EjecutarProceso(string conexion, int numeroReintentosMaximo, Mail mail)
         {
             var repositorio = new Repositorio(conexion);
-            var mensajeRespuesta = @"<h3>Proceso de carga de Items de Gasto</h3><p>mensaje_respuesta</p>";
+            var mensajeRespuesta = @"<h2>Proceso de carga masiva de Items de Gasto</h2><p>mensaje_respuesta</p>";
             try
             {
                 Console.WriteLine($"--------------------------------------------------------------------");
@@ -133,7 +133,7 @@ namespace ProcesarItemGastoPIPSG
                 var listadoDetalle = $"<table><thead><tr><th>Ejecutora</th><th>Mensaje de Error</th></tr></thead><tbody>{string.Join(' ', listaErrados)}</tbody></table>";
 
                 mensajeRespuesta = mensajeRespuesta.Replace("mensaje_respuesta", detalle);
-                mensajeRespuesta += listadoDetalle;
+                mensajeRespuesta += listaErrados.Count == 0 ? "": listadoDetalle;
 
                 repositorio.SendMail(mail, "Proceso de Carga Masiva de Datos de Proyectos", mensajeRespuesta);
 

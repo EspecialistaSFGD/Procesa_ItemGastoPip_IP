@@ -8,8 +8,8 @@ namespace ProcesarItemGastoPIPSG
     [JsonObject(Title = "DataGasto")]
     public class RespuestaServicio
     {
-        [JsonProperty("@xmlns")]
-        public string UriServicio { get; set; } = "http://www.mef.gob.pe/";
+        /*[JsonProperty("@xmlns")]
+        public string UriServicio { get; set; } = "http://www.mef.gob.pe/";*/
         [JsonProperty("Item")]
         [JsonConverter(typeof(SingleOrArrayConverter<Item>))]
         public List<Item> Items { get; set; } = new List<Item>();
@@ -51,11 +51,11 @@ namespace ProcesarItemGastoPIPSG
         public string Unidad_Medida { get; set; }
         public string PIA { get; set; }
         public string PIM { get; set; }
+        public string Certificado { get; set; }
         public string CompAnual { get; set; }
         public string AtencionCompMensual { get; set; }
         public string Devengado { get; set; }
         public string Girado { get; set; }
-        public string Certificado { get; set; }
 
         public string Multiejecutora { get; set; }
         public DateTime FechaInsercion { get; set; } = DateTime.Now;

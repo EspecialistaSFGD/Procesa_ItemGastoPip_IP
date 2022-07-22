@@ -62,8 +62,11 @@ namespace ProcesarItemGastoPIPSG
                 var request = new ProxyManager.Request();
 
                 Console.WriteLine($"Consulta de servicio : { ejecutora.UrlWebService }.");
-                request.HttpMethod = ProxyManager.HttpMethod.Get;
-                request.Uri = ejecutora.UrlWebService;
+
+                var datosRequest = ejecutora.UrlWebService.Split('|');
+                request.HttpMethod = ProxyManager.HttpMethod.Post;
+                request.Uri = datosRequest[0];
+                request.Body = datosRequest[1];
                 request.MediaType = ProxyManager.MediaType.Xml;
                 var respuesta = new ProxyManager.Response { Ok = false };
                 while (!respuesta.Ok && (numeroReintento <= numeroReintentosMaximo))
