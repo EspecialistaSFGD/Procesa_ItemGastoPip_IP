@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ProcesarItemGastoPIPSG
@@ -20,6 +22,7 @@ namespace ProcesarItemGastoPIPSG
         private readonly TypeConvertionManager typeConvertionsManager;
         private readonly int TiempoEsperaCargadoMasivo;
         private readonly int BatchSize;
+        private readonly string SOAP_ACTION;
 
         public Repositorio(string conexion)
         {
@@ -28,6 +31,7 @@ namespace ProcesarItemGastoPIPSG
             typeConvertionsManager = TypeConvertionManager.GetNewTypeConvertionManager();
             TiempoEsperaCargadoMasivo = 10000;
             BatchSize = 50000;
+            SOAP_ACTION = "SOAPAction";
         }
 
         //Paso 1.- Obtener el listado de Ejecutoras
@@ -57,40 +61,34 @@ namespace ProcesarItemGastoPIPSG
             var itemsRespuesta = new List<Item>();
             try
             {
-                var invocacionesErradas = new List<string>();
-                var numeroReintento = 0;
-                var request = new ProxyManager.Request();
-
-                Console.WriteLine($"Consulta de servicio : { ejecutora.UrlWebService }.");
-
+                Console.WriteLine($"Consulta de servicio : {ejecutora.UrlWebService}.");
                 var datosRequest = ejecutora.UrlWebService.Split('|');
-                request.HttpMethod = ProxyManager.HttpMethod.Post;
-                request.Uri = datosRequest[0];
-                request.Body = datosRequest[1];
-                request.MediaType = ProxyManager.MediaType.Xml;
-                var respuesta = new ProxyManager.Response { Ok = false };
-                while (!respuesta.Ok && (numeroReintento <= numeroReintentosMaximo))
-                {
-                    if (numeroReintento > 0)
-                    {
-                        Console.WriteLine($"Se procede con el reintento numero : {numeroReintento} de consulta al servicio");
-                    }
-                    try
-                    {
-                        respuesta = await proxyManager.CallServiceAsync(request);
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine($"Error al intentar comunicarse con el servicio del MEF. Detalle del error => {exception.Message}");
-                        respuesta.Ok = false;
-                    }
-                    numeroReintento++;
-                }
+                var cabeceras = new Dictionary<string, string>();
+                cabeceras.Add(SOAP_ACTION, datosRequest[2]);
 
-                if (respuesta.Ok)
+                var clientHandler = new HttpClientHandler();
+                using (var client = new HttpClient(clientHandler))
                 {
-                    var listadoItems = typeConvertionsManager.XmlStringToObject<RespuestaServicio>(respuesta.ResponseBody, "DataGasto");
-                    itemsRespuesta = listadoItems.Items;
+                    client.Timeout = TimeSpan.FromMinutes(120);
+                    foreach (var item in cabeceras)
+                    {
+                        client.DefaultRequestHeaders.Add(item.Key, item.Value);
+                    }
+
+                    var response = await client.PostAsync(datosRequest[0], new StringContent(datosRequest[1], Encoding.UTF8, "text/xml"));
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var body = await response.Content.ReadAsStringAsync();
+                        var respuestaItems = typeConvertionsManager.XmlStringToObject<RespuestaServicio>(body, "soap:Envelope.soap:Body.ObtenerDataGastoPIPResponse.DataGasto");
+                        Console.WriteLine($"Se han recuperado los itemas de gasto desde el servicio del MEF. Numero de items para el mes => {respuestaItems.Items.Count}");
+                        itemsRespuesta = respuestaItems.Items;
+                    }
+                    else
+                    {
+                        throw new Exception($"Error en respuesta =>  {await response.Content.ReadAsStringAsync()}");
+                    }
+
                 }
             }
             catch (Exception exception)
